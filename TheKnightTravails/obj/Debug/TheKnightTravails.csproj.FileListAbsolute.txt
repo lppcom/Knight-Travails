@@ -1,0 +1,6 @@
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\bin\Debug\TheKnightTravails.exe.config
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\obj\Debug\TheKnightTravails.csprojResolveAssemblyReference.cache
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\bin\Debug\TheKnightTravails.exe
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\bin\Debug\TheKnightTravails.pdb
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\obj\Debug\TheKnightTravails.exe
+C:\Users\Joel\Dropbox\Integrated Research\TheKnightTravails\TheKnightTravails\obj\Debug\TheKnightTravails.pdb

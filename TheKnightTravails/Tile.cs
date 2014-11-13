@@ -7,19 +7,24 @@ namespace TheKnightTravails
 {
     class Tile
     {
-        private int row;
-        private int column;
+        public int Row { get; set;}
+        public int Column { get; set; }
         
         public Tile(int column, int row)
         {
-            this.column = column;
-            this.row = row;
+            Column = column;
+            Row = row;
+        }
+
+        public bool Matches(Tile tile)
+        {
+            return tile.Column == this.Column && tile.Row == this.Row;
         }
 
         public override String ToString()
         {
-            String columnString = StaticTileLocations.GetColumnLetter(this.column);
-            String rowString = StaticTileLocations.GetRowNumber(this.row);
+            String columnString = StaticTileLocations.GetColumnLetter(Column);
+            String rowString = StaticTileLocations.GetRowNumber(Row);
 
             return columnString + rowString;
         }

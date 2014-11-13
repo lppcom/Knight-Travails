@@ -56,6 +56,6 @@ namespace TheKnightTravails
           {
               return null;
           }
-      }     
+      }
     }
 }

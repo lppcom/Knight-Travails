@@ -8,32 +8,44 @@ namespace TheKnightTravails
 {
     class Chessboard
     {
-        private bool turnsRemaining = true; // valid squares left?
-        private int startRow, startCol, endRow, endCol, turnCount;
-        private List<Move> moves = new List<Move>();
+        private int startRow, startCol, endCol, endRow; // get rid of these
+        private List<Move> knightMoves = new List<Move>();
         private List<Tile> turnList = new List<Tile>(); // store a list of tiles for each iteration
-        private Tile[,] tiles;
+        private Tile[,] tiles = new Tile[MAX_COLUMNS, MAX_ROWS];
         private Tile fromTile, toTile; // start and end targets
         bool pathComplete = false; // signify end of path, end target found
         private const int MAX_COLUMNS = 8;
         private const int MAX_ROWS = 8;
+        private bool endTileFound = false;
 
         public Chessboard()
         {
-            //initialiseTiles();
+            initialiseTiles();
             initialiseMoves();
+        }
+
+        public void test(int startCol, int startRow, int endCol, int endRow)
+        {
+            setTargetTiles(startCol, startRow, endCol, endRow);
+            setTileDistancesFromStart();
+
+            foreach (Tile tile in tiles)
+            {
+                String distance = " -- Distance from start: " + tile.DistanceFromStart.ToString();
+                System.Console.WriteLine(tile.ToString() + distance);
+            }
         }
 
         private void initialiseMoves()
         {
-            moves.Add(new Move(1, 2));
-            moves.Add(new Move(1, -2));
-            moves.Add(new Move(-1, 2));
-            moves.Add(new Move(-1, -2));
-            moves.Add(new Move(2, 1));
-            moves.Add(new Move(2, -1));
-            moves.Add(new Move(-2, 1));
-            moves.Add(new Move(-2, -1));
+            knightMoves.Add(new Move(1, 2));
+            knightMoves.Add(new Move(1, -2));
+            knightMoves.Add(new Move(-1, 2));
+            knightMoves.Add(new Move(-1, -2));
+            knightMoves.Add(new Move(2, 1));
+            knightMoves.Add(new Move(2, -1));
+            knightMoves.Add(new Move(-2, 1));
+            knightMoves.Add(new Move(-2, -1));
         }
 
         private void initialiseTiles()
@@ -47,162 +59,84 @@ namespace TheKnightTravails
             }
         }
 
-        private bool isValidMove(Tile nextPosition)
+        // Initialise start and end tiles in tiles multi-dimensional array
+        private void setTargetTiles(int startCol, int startRow, int endCol, int endRow)
         {
-            bool newPosition = true;
+            this.startCol = startCol;
+            this.startRow = startRow;
+            this.endCol = endCol;
+            this.endRow = endRow;
 
-            foreach (Tile tile in turnList)
+            tiles[startCol, startRow].IsStart = true;
+            tiles[startCol, startRow].DistanceFromStart = 0;
+            tiles[endCol, endRow].IsEnd = true;
+        }
+
+        private void findPath()
+        {
+            // Check the distance from start to end
+            int distance = tiles[endCol, endRow].DistanceFromStart
+        }
+
+        private void setTileDistancesFromStart()
+        {
+            int distance = 1;
+            setTileDistance(startCol, startRow, distance);
+
+            while (!endTileFound)
             {
-                if (tile.Matches(nextPosition)) // already been there before! 
+                foreach (Tile tile in tiles)
                 {
-                    newPosition = false;
+                    if (tile.DistanceFromStart == distance)
+                    {
+                        setTileDistance(tile.Column, tile.Row, distance + 1);
+                    }
+                }
+                distance++;
+            }  
+        }
+
+        private void setTileDistance(int col, int row, int distance)
+        {
+            // start with tiles[startcol, startRow] -> get all valid moves
+            List<Move> nextMoves = validMovesFrom(tiles[col, row]);
+            foreach (Move move in nextMoves)
+            {
+                tiles[move.Xdirection + col, move.Ydirection + row].DistanceFromStart = distance;
+                
+                if (tiles[move.Xdirection + col, move.Ydirection + row].IsEnd)
+                {
+                    // end tile has been found
+                    endTileFound = true;
                     break;
                 }
             }
-            return (newPosition && nextPosition.Column >= 0 && nextPosition.Column < MAX_COLUMNS && nextPosition.Row >= 0 && nextPosition.Row < MAX_ROWS);
         }
 
-
-        public bool FindARoute(int startCol, int startRow, int endCol, int endRow)
+        // Check all valid moves from a particular tile
+        private List<Move> validMovesFrom(Tile tile)
         {
-            setTargetTiles(startCol,startRow,endCol,endRow);
-                        
-            do
-            {
-                takeTurn(fromTile);
-            } while (turnsRemaining);
+            List<Move> validMoves = new List<Move>();
 
-            return (pathComplete);
-        }
-
-        private void setTargetTiles(int startCol, int startRow, int endCol, int endRow)
-        {
-            fromTile = new Tile(startCol, startRow);
-            toTile = new Tile(endCol, endRow);
-        }
-
-        private void takeTurn(Tile tileToTry)
-        {
-            if (tileMatchesEnd())
+            // Check each possible knight move
+            foreach (Move move in knightMoves)
             {
-                pathComplete = true;
-            }
-            else
-            {
-                // try each move from current tile
-                foreach (Move move in moves)
+                int nextXStep = move.Xdirection + tile.Column;
+                int nextYStep = move.Ydirection + tile.Row;
+
+                // Check if the proposed move is within the chessboard limits
+                if (nextXStep < MAX_COLUMNS && nextXStep >= 0 && nextYStep < MAX_ROWS && nextYStep >= 0)
                 {
-                    int nextXStep = move.xDirection + fromTile.Column;
-                    int nextYStep = move.yDirection + fromTile.Row;
-
-                    Tile nextTile = new Tile(nextXStep, nextYStep);
-                    
-                    if (isValidMove(nextTile))
+                    // Check if the tile has been landed on before
+                    if (tiles[nextXStep, nextYStep].DistanceFromStart == -1)
                     {
-                        fromTile = nextTile;
-                        turnList.Add(fromTile);
-                        System.Console.WriteLine(fromTile);
-                        if (tileMatchesEnd())
-                        {
-                            turnsRemaining = false;
-                            pathComplete = true;
-                            break;
-                        }
-                            
-                        //break;
-                        //takeTurn(fromTile);
+                        validMoves.Add(move);
                     }
-                    //else
-                    //{
-                      // System.Console.WriteLine("Stuck!!");
-                       //System.Console.ReadLine();
-                       //turnsRemaining = false;
-                    //}
-                }
+                } 
             }
+
+            return validMoves;
         }
-
-        //private void takeTurn()
-        //{
-        //    if (startMatchesEnd())
-        //    {
-        //        travailsComplete = true;
-        //    }
-        //    else
-        //    {
-        //        if (fromTile.Row + 2 < 8)
-        //        {
-        //            fromTile.Row += 2;
-
-        //            if (fromTile.Column + 1 < 8)
-        //            {
-        //                fromTile.Column += 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-        //            else if (fromTile.Column - 1 > 0)
-        //            {
-        //                fromTile.Column -= 1;
-        //                turnList.Add(fromTile);
-        //            }
-
-        //        }
-        //        else if (fromTile.Row - 2 > 0)
-        //        {
-        //            fromTile.Row -= 2;
-
-        //            if (fromTile.Column + 1 < 8)
-        //            {
-        //                fromTile.Column += 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-        //            else if (fromTile.Column - 1 > 0)
-        //            {
-        //                fromTile.Column -= 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-
-        //        }
-        //        else if (fromTile.Column + 2 < 8)
-        //        {
-        //            fromTile.Column += 2;
-
-        //            if (fromTile.Row + 1 < 8)
-        //            {
-        //                fromTile.Row += 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-        //            else if (fromTile.Row - 1 > 0)
-        //            {
-        //                fromTile.Row -= 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-
-        //        }
-        //        else if (fromTile.Column - 2 > 0)
-        //        {
-        //            fromTile.Column -= 2;
-
-        //            if (fromTile.Row + 1 < 8)
-        //            {
-        //                fromTile.Row += 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-        //            else if (fromTile.Row - 1 > 0)
-        //            {
-        //                fromTile.Row -= 1;
-        //                turnList.Add(fromTile);
-
-        //            }
-
-        //        }
-        //    }
-        //}
 
         public String GetTurnList()
         {
@@ -214,33 +148,5 @@ namespace TheKnightTravails
             
             return output;
         }
-        
-        private bool tileMatchesEnd()
-        {
-            return (fromTile.Row == toTile.Row && fromTile.Column == toTile.Column);
-        }
-
-        //public void testRun()
-        //{
-        //    setTile(0, 0);
-        //    System.Console.WriteLine("Tile @ " + col + "," + row + ": " + tiles[col, row].ToString());
-
-        //    setTile(2, 3);
-        //    System.Console.WriteLine("Tile @ " + col + "," + row + ": " + tiles[col, row].ToString());
-
-        //    setTile(4, 5);
-        //    System.Console.WriteLine("Tile @ " + col + "," + row + ": " + tiles[col, row].ToString());
-
-        //    setTile(7, 1);
-        //    System.Console.WriteLine("Tile @ " + col + "," + row + ": " + tiles[col, row].ToString());
-
-        //    System.Console.ReadLine();
-        //}
-
-        //private void setTile(int col, int row)
-        //{
-        //    this.col = col;
-        //    this.row = row;
-        //}
     }
 }

@@ -8,13 +8,13 @@ namespace TheKnightTravails
 {
     class Move
     {
-        public int xDirection {get; set;}
-        public int yDirection {get; set;}
+        public int Xdirection {get; set;}
+        public int Ydirection {get; set;}
 
         public Move(int x, int y)
         {
-            xDirection = x;
-            yDirection = y;
+            Xdirection = x;
+            Ydirection = y;
         }
     }
 }

@@ -9,11 +9,17 @@ namespace TheKnightTravails
     {
         public int Row { get; set;}
         public int Column { get; set; }
-        
+
+        public int DistanceFromStart { get; set; }
+
+        public bool IsStart { get; set; }
+        public bool IsEnd { get; set; }
+
         public Tile(int column, int row)
         {
             Column = column;
             Row = row;
+            DistanceFromStart = -1; // -1 signifies that tile has not been "stepped on" yet
         }
 
         public bool Matches(Tile tile)

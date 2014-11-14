@@ -20,17 +20,8 @@ namespace TheKnightTravails
             int endCol = int.Parse(System.Console.ReadLine());
             int endRow = int.Parse(System.Console.ReadLine());
 
-            if (chessBoard.FindARoute(startCol,startRow,endCol,endRow))
-            {
-                System.Console.WriteLine("success");
-                System.Console.WriteLine(chessBoard.GetTurnList());
-                System.Console.ReadLine();
-            }
-            else
-            {
-                System.Console.WriteLine("No route found...");
-                System.Console.ReadLine();
-            }
+            chessBoard.test(startCol, startRow, endCol, endRow);
+            System.Console.ReadLine();
         }
 
         

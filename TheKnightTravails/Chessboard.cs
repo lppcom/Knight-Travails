@@ -8,16 +8,13 @@ namespace TheKnightTravails
 {
     class Chessboard
     {
-        private int startRow, startCol, endCol, endRow; // get rid of these
-        private List<Move> knightMoves = new List<Move>();
-        private List<Tile> turnList = new List<Tile>(); // store a list of tiles for each iteration
-        private Tile[,] tiles = new Tile[MAX_COLUMNS, MAX_ROWS];
-        private Tile fromTile, toTile; // start and end targets
-        bool pathComplete = false; // signify end of path, end target found
+        private int startRow, startCol, endCol, endRow; // start and end tile coordinates
+        private List<Move> knightMoves = new List<Move>(); // list of moves a knight can make
+        private List<Tile> pathList = new List<Tile>(); // list of steps in the shortest path
+        private Tile[,] tiles = new Tile[MAX_COLUMNS, MAX_ROWS]; // each tile on the chessboard itself
         private const int MAX_COLUMNS = 8;
         private const int MAX_ROWS = 8;
-        private bool endTileFound = false;
-        private bool startTileFound = false;
+        private bool endTileFound = false; 
 
         public Chessboard()
         {
@@ -37,6 +34,7 @@ namespace TheKnightTravails
             }
         }
 
+        // Store a list of all possible moves for a knight
         private void initialiseMoves()
         {
             knightMoves.Add(new Move(1, 2));
@@ -49,6 +47,7 @@ namespace TheKnightTravails
             knightMoves.Add(new Move(-2, -1));
         }
 
+        // Build the empty chessboard
         private void initialiseTiles()
         {
             for (int column = 0; column < MAX_COLUMNS; column++)
@@ -73,46 +72,35 @@ namespace TheKnightTravails
             tiles[endCol, endRow].IsEnd = true;
         }
 
+        // Find a valid path from the start to end tile
         public void findPath()
         {
+            // First set the distances between the start and end tiles
             setTileDistancesFromStart(); 
-            // Check the distance from start to end
+            // Check the distance from start to end, and remove one to begin traversing backwards through the path
             int distance = tiles[endCol, endRow].DistanceFromStart - 1;
-            turnList.Add(tiles[endCol, endRow]);
-
+            // The last tile is added to the pathList to be displayed to the user
+            pathList.Add(tiles[endCol, endRow]);
+            // nextTiles stores the next set of tiles within one move from the current tile
             List<Tile> nextTiles = getTilesWithinOneMove(tiles[endCol, endRow]);
-
+            // a distance of 0 means that the start tile has been found
             while (distance > 0)
             {
+                // Check each tile within one move - if it has distance-1 from the current tile,
+                // it is part of a valid move back from the start, so restart the search with it as the reference tile. 
                 foreach (Tile tile in nextTiles)
                 {
                     if (tile.DistanceFromStart == distance)
                     {
                         distance--;
-                        turnList.Add(tile);
-                        //System.Console.WriteLine(tile);
+                        pathList.Add(tile);
                         nextTiles = getTilesWithinOneMove(tile);
                     }
                 }
             }              
         }
 
-        public List<Tile> findPath(Tile tile, int distance)
-        {
-            List<Tile> nextTiles = new List<Tile>();
-            List<Tile> possibleTiles = getTilesWithinOneMove(tile);
-
-            foreach (Tile tileToTry in possibleTiles)
-            {
-                if (tileToTry.DistanceFromStart == distance)
-                {
-                    nextTiles.Add(tileToTry);
-                }
-            }
-
-            return nextTiles;
-        }
-
+        // Returns a list of tiles that can be moved to from the given tile
         private List<Tile> getTilesWithinOneMove(Tile tile)
         {
             List<Tile> validTiles = new List<Tile>();
@@ -126,6 +114,7 @@ namespace TheKnightTravails
             return validTiles;
         }
 
+        // Sets the distance of each tile from the start tile, until it finds the end tile
         private void setTileDistancesFromStart()
         {
             int distance = 1;
@@ -187,11 +176,12 @@ namespace TheKnightTravails
             return validMoves;
         }
 
+        // Returns a list of tiles in a valid knight path
         public String GetTurnList()
         {
             String output = "";
 
-            foreach (Tile tile in turnList)
+            foreach (Tile tile in pathList)
             {
                 output = tile.ToString() + " " + output;
             }
@@ -208,7 +198,7 @@ namespace TheKnightTravails
                 for (int row = 0; row < MAX_ROWS; row++)
                 {
                     System.Console.Write(tiles[row,column] + " " + tiles[row,column].DistanceFromStart);
-                    foreach(Tile tile in turnList)
+                    foreach(Tile tile in pathList)
                     {
                         if (tiles[row, column].Matches(tile))
                             System.Console.Write("**");

@@ -17,6 +17,7 @@ namespace TheKnightTravails
         private const int MAX_COLUMNS = 8;
         private const int MAX_ROWS = 8;
         private bool endTileFound = false;
+        private bool startTileFound = false;
 
         public Chessboard()
         {
@@ -60,7 +61,7 @@ namespace TheKnightTravails
         }
 
         // Initialise start and end tiles in tiles multi-dimensional array
-        private void setTargetTiles(int startCol, int startRow, int endCol, int endRow)
+        public void setTargetTiles(int startCol, int startRow, int endCol, int endRow)
         {
             this.startCol = startCol;
             this.startRow = startRow;
@@ -72,10 +73,57 @@ namespace TheKnightTravails
             tiles[endCol, endRow].IsEnd = true;
         }
 
-        private void findPath()
+        public void findPath()
         {
+            setTileDistancesFromStart(); 
             // Check the distance from start to end
-            int distance = tiles[endCol, endRow].DistanceFromStart
+            int distance = tiles[endCol, endRow].DistanceFromStart - 1;
+            turnList.Add(tiles[endCol, endRow]);
+
+            List<Tile> nextTiles = getTilesWithinOneMove(tiles[endCol, endRow]);
+
+            while (distance > 0)
+            {
+                foreach (Tile tile in nextTiles)
+                {
+                    if (tile.DistanceFromStart == distance)
+                    {
+                        distance--;
+                        turnList.Add(tile);
+                        //System.Console.WriteLine(tile);
+                        nextTiles = getTilesWithinOneMove(tile);
+                    }
+                }
+            }              
+        }
+
+        public List<Tile> findPath(Tile tile, int distance)
+        {
+            List<Tile> nextTiles = new List<Tile>();
+            List<Tile> possibleTiles = getTilesWithinOneMove(tile);
+
+            foreach (Tile tileToTry in possibleTiles)
+            {
+                if (tileToTry.DistanceFromStart == distance)
+                {
+                    nextTiles.Add(tileToTry);
+                }
+            }
+
+            return nextTiles;
+        }
+
+        private List<Tile> getTilesWithinOneMove(Tile tile)
+        {
+            List<Tile> validTiles = new List<Tile>();
+            List<Move> moves = validMovesFrom(tile);
+            foreach (Move move in moves)
+            {
+                Tile nextTile = tiles[move.Xdirection + tile.Column, move.Ydirection + tile.Row];
+
+                validTiles.Add(nextTile);
+            }
+            return validTiles;
         }
 
         private void setTileDistancesFromStart()
@@ -102,14 +150,19 @@ namespace TheKnightTravails
             List<Move> nextMoves = validMovesFrom(tiles[col, row]);
             foreach (Move move in nextMoves)
             {
-                tiles[move.Xdirection + col, move.Ydirection + row].DistanceFromStart = distance;
-                
-                if (tiles[move.Xdirection + col, move.Ydirection + row].IsEnd)
+                // Check if the tile has been landed on before
+                if (tiles[col+move.Xdirection, move.Ydirection + row].DistanceFromStart == -1)
                 {
-                    // end tile has been found
-                    endTileFound = true;
-                    break;
+                    tiles[move.Xdirection + col, move.Ydirection + row].DistanceFromStart = distance;
+
+                    if (tiles[move.Xdirection + col, move.Ydirection + row].IsEnd)
+                    {
+                        // end tile has been found
+                        endTileFound = true;
+                        break;
+                    }
                 }
+                
             }
         }
 
@@ -127,11 +180,7 @@ namespace TheKnightTravails
                 // Check if the proposed move is within the chessboard limits
                 if (nextXStep < MAX_COLUMNS && nextXStep >= 0 && nextYStep < MAX_ROWS && nextYStep >= 0)
                 {
-                    // Check if the tile has been landed on before
-                    if (tiles[nextXStep, nextYStep].DistanceFromStart == -1)
-                    {
-                        validMoves.Add(move);
-                    }
+                    validMoves.Add(move);
                 } 
             }
 
@@ -141,12 +190,40 @@ namespace TheKnightTravails
         public String GetTurnList()
         {
             String output = "";
+
             foreach (Tile tile in turnList)
             {
-                output += tile.ToString() + " ";
+                output = tile.ToString() + " " + output;
             }
             
             return output;
+        }
+
+        public void PrintBoard()
+        {
+            System.Console.WriteLine();
+
+            for (int column = 7; column >= 0; column--)
+            {
+                for (int row = 0; row < MAX_ROWS; row++)
+                {
+                    System.Console.Write(tiles[row,column] + " " + tiles[row,column].DistanceFromStart);
+                    foreach(Tile tile in turnList)
+                    {
+                        if (tiles[row, column].Matches(tile))
+                            System.Console.Write("**");
+                        else
+                            System.Console.Write("  ");
+                    }
+                    if (tiles[row, column].DistanceFromStart == -1)
+                        System.Console.Write(" | ");
+                    else
+                        System.Console.Write("  | ");
+                }
+                System.Console.WriteLine();
+                System.Console.WriteLine("-------------------------------------------------");
+                System.Console.WriteLine();
+            }
         }
     }
 }

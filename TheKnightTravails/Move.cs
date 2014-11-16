@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheKnightTravails
 {
+    // Stores information about a move a piece can make on the board
     class Move
     {
         public int Xdirection {get; set;}

@@ -22,18 +22,6 @@ namespace TheKnightTravails
             initialiseMoves();
         }
 
-        public void test(int startCol, int startRow, int endCol, int endRow)
-        {
-            setTargetTiles(startCol, startRow, endCol, endRow);
-            setTileDistancesFromStart();
-
-            foreach (Tile tile in tiles)
-            {
-                String distance = " -- Distance from start: " + tile.DistanceFromStart.ToString();
-                System.Console.WriteLine(tile.ToString() + distance);
-            }
-        }
-
         // Store a list of all possible moves for a knight
         private void initialiseMoves()
         {
@@ -67,7 +55,6 @@ namespace TheKnightTravails
             this.endCol = endCol;
             this.endRow = endRow;
 
-            tiles[startCol, startRow].IsStart = true;
             tiles[startCol, startRow].DistanceFromStart = 0;
             tiles[endCol, endRow].IsEnd = true;
         }
@@ -187,33 +174,6 @@ namespace TheKnightTravails
             }
             
             return output;
-        }
-
-        public void PrintBoard()
-        {
-            System.Console.WriteLine();
-
-            for (int column = 7; column >= 0; column--)
-            {
-                for (int row = 0; row < MAX_ROWS; row++)
-                {
-                    System.Console.Write(tiles[row,column] + " " + tiles[row,column].DistanceFromStart);
-                    foreach(Tile tile in pathList)
-                    {
-                        if (tiles[row, column].Matches(tile))
-                            System.Console.Write("**");
-                        else
-                            System.Console.Write("  ");
-                    }
-                    if (tiles[row, column].DistanceFromStart == -1)
-                        System.Console.Write(" | ");
-                    else
-                        System.Console.Write("  | ");
-                }
-                System.Console.WriteLine();
-                System.Console.WriteLine("-------------------------------------------------");
-                System.Console.WriteLine();
-            }
         }
     }
 }

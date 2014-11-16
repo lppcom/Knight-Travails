@@ -12,7 +12,6 @@ namespace TheKnightTravails
 
         public int DistanceFromStart { get; set; }
 
-        public bool IsStart { get; set; }
         public bool IsEnd { get; set; }
 
         public Tile(int column, int row)

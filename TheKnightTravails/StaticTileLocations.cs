@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheKnightTravails
 {
+    // Provide a lookup for getting a tile's array index notation in a readable format
     static class StaticTileLocations
     {
         static Dictionary<int, string> rowNumbers = new Dictionary<int,string>()

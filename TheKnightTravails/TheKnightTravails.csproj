@@ -44,7 +44,6 @@
     <Compile Include="Chessboard.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Move.cs" />
-    <Compile Include="Piece.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StaticTileLocations.cs" />
     <Compile Include="Tile.cs" />

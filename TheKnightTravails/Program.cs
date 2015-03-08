@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheKnightTravails
 {
+    // Provides the command line interface for a user. 
     class Program
     {
         private Chessboard chessBoard;
